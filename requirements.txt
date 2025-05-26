@@ -9,4 +9,4 @@ uvicorn==0.17.6
 datetime
 python-jose[cryptography]
 passlib[bcrypt]
-fastapi python-multipart
+python-multipart
