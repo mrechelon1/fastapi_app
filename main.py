@@ -1,4 +1,3 @@
-
 from fastapi import FastAPI, Depends,  HTTPException, Header
 from typing import Union, Optional
 from fastapi.encoders import jsonable_encoder
@@ -12,8 +11,6 @@ from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from jose import jwt, JWTError 
 from datetime import datetime, timedelta
-
-
 
 #Database connection URL
 SQLALCHEY_DATABASE_URL = 'mysql+pymysql://root:@localhost:3306/fasttest'
@@ -232,7 +229,3 @@ def protected_route(authorization: Optional[str] = Header(None), db: Session =  
 @app.get("/")
 async def index():
     return {"message": "Hello World"}
-
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
