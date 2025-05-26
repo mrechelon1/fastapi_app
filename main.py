@@ -103,7 +103,6 @@ def verify_access_token(token: str):
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-
 #select all users
 @app.get("/users/")
 async def read_users(db:Session = Depends(get_db)):
@@ -117,7 +116,6 @@ async def create_user(newuser: UserCreate, db:Session = Depends(get_db)):
     db_user = db.query(User).filter(User.username == newuser.username).first()
     if db_user:
         raise HTTPException(status_code=400, detail="User already registered")
-    
     try:
         if not newuser.name:
             raise HTTPException(status_code=422, detail="Name is required")
@@ -174,7 +172,6 @@ async def update_user(userid: int, userupdate: UserCreate, db:Session = Depends(
     except ValidationError as e:
         return {"detail": e.errors()}
 
-
 #Authenticated login
 @app.post("/login")
 def login(user: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
@@ -203,11 +200,9 @@ def login2(username: str, password: str, db: Session =  Depends(get_db)):
         
 #protected user
 @app.get("/protected")
-def protected_route(authorization: Optional[str] = Header(None), db: Session =  Depends(get_db)):
-        
+def protected_route(authorization: Optional[str] = Header(None), db: Session =  Depends(get_db)):       
     if not authorization:
         raise HTTPException(status_code=401, detail="Authorization header is missing")
-
     try:
         token_prefix, token = authorization.split(" ")
         if token_prefix.lower() != "bearer":
@@ -220,21 +215,15 @@ def protected_route(authorization: Optional[str] = Header(None), db: Session =  
         raise HTTPException(status_code=401, detail="Invalid token")
     except ValueError:
         raise HTTPException(status_code=401, detail="Invalid authorization header format")
-
     try:
        users = db.query(User).filter(User.username == username).first()       
        if users is None:
             raise HTTPException(status_code=404, detail="User not found")
-       return users
-        
+       return users  
     except ValidationError as e:
         return {"detail": e.errors()} 
-    
-              
+                
 #Index page
 @app.get("/")
 async def index():
     return {"message": "Hello World"}
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
