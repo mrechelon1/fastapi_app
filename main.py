@@ -14,7 +14,7 @@ from jose import jwt, JWTError
 from datetime import datetime, timedelta
 
 #Database connection URL
-SQLALCHEY_DATABASE_URL = 'postgresql://mrroot:XICa38lciFIaethWKTtv6GjXjVZea4Bz@localhost:5432/mydb_uhda'
+SQLALCHEY_DATABASE_URL = 'postgresql://mrroot:XICa38lciFIaethWKTtv6GjXjVZea4Bz@dpg-d0q1i9emcj7s73ekvqk0-a:5432/mydb_uhda'
 engine = create_engine(SQLALCHEY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit = False, autoflush=False, bind=engine)
 
