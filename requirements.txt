@@ -1,5 +1,5 @@
 fastapi==0.78.0
-pydantic==1.9.1
+pydantic==1.10.0a1
 requests==2.27.1
 SQLAlchemy
 starlette==0.19.1
