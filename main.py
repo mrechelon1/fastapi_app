@@ -2,6 +2,7 @@ from fastapi import FastAPI, Depends,  HTTPException, Header
 from typing import Union, Optional
 from fastapi.encoders import jsonable_encoder
 import uvicorn
+import psycopg2
 from sqlalchemy import create_engine,Integer, String,Column
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
