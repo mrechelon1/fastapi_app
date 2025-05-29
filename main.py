@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from pydantic import BaseModel, ValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from jose import jwt, JWTError 
 from datetime import datetime, timedelta
@@ -81,6 +81,7 @@ def get_db():
 SECRET_KEY = "3885cac067064bf3098f62854c211e68e78fcdc0abacf5935a39a509cec31964"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 #Token create
 def create_access_token(data: dict, expires_delta: timedelta = None):
@@ -103,6 +104,22 @@ def verify_access_token(token: str):
         return username
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+        
+def get_password_hash(password):
+        return password_context.hash(password)
+
+def verify_password(plain_password, hashed_password):
+        return password_context.verify(plain_password, hashed_password)
+
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+            try:
+                payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+                username = payload.get("sub")
+                if username is None:
+                    raise HTTPException(status_code=401, detail="Invalid credentials")
+                return username
+            except jwt.PyJWTError:
+                raise HTTPException(status_code=401, detail="Invalid credentials")
 
 #select all users
 @app.get("/users/")
@@ -212,7 +229,21 @@ def protected_route(authorization: Optional[str] = Header(None), db: Session =  
        return users  
     except ValidationError as e:
         return {"detail": e.errors()} 
-                
+        
+@app.post("/token")
+async def userlogin(user: Annotated[OAuth2PasswordRequestForm, Depends()], db=Depends(get_db)):
+            db_user = db.query(User).filter(User.username == user.username ).first()  
+            if not db_user or not password_context.verify(user.password, db_user.password):
+                raise HTTPException(status_code=401, detail="Incorrect username or password")
+            access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+            access_token = create_access_token(data={"sub": user.username}, expires_delta=access_token_expires)
+            return {"access_token": access_token, "token_type": "bearer"}
+
+
+@app.get("/protectedprofile")
+async def protected_user(current_user: Annotated[str, Depends(get_current_user)]):
+            return {"message": f"Welcome, {current_user}!"} 
+    
 #Index page
 @app.get("/")
 async def index():
