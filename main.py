@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Depends,  HTTPException, Header
-from typing import Union, Optional
+from typing import Annotated, Union, Optional
 from fastapi.encoders import jsonable_encoder
 import uvicorn
 import psycopg2
