@@ -188,17 +188,6 @@ def login(user: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
-#Login
-@app.post("/login2")
-def login2(username: str, password: str, db: Session =  Depends(get_db)):
-    
-        users = db.query(User).filter(User.username == username).first()
-          
-        if users.username == username and users.password == password:         
-            return {'success': 'Login Successful'}      
-        else:
-            return {'failure':  'wrong password or email address'}
-        
 #protected user
 @app.get("/protected")
 def protected_route(authorization: Optional[str] = Header(None), db: Session =  Depends(get_db)):       
