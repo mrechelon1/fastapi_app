@@ -190,7 +190,24 @@ async def update_user(userid: int, userupdate: UserCreate, db:Session = Depends(
     except ValidationError as e:
         return {"detail": e.errors()}
 
-
+#Profile Update   
+@app.put('/updateprofile/')
+async def update_profile(userupdate: UserCreate, current_user: Annotated[UserCreate, Depends(get_current_user)],  db:Session = Depends(get_db)):
+    try:
+        users = db.query(User).filter(User.username == current_user).first()
+        hashed_password = password_context.hash(userupdate.password)    
+        if users is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        users.name = userupdate.name
+        users.username = userupdate.username
+        users.password = hashed_password
+        users.status = userupdate.status
+        db.commit()
+        db.refresh(users)
+        return {"message": "User updated successfully", "user": users}
+    except ValidationError as e:
+        return {"detail": e.errors()}
+        
 #Authenticated login
 @app.post("/login")
 def login(user: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db)):
